@@ -1,7 +1,11 @@
 package main
 
 import (
+	"bufio"
 	"bytes"
+	"crypto/rand"
+	"crypto/sha256"
+	"encoding/hex"
 	"fmt"
 	"io"
 	"log"
@@ -25,15 +29,21 @@ var (
 	serveCmd      = app.Command("serve", "Run the proxy server.")
 	httpInterface = serveCmd.Flag("addr", "HTTP Server listen address.").Default(":80").String()
 	configFile    = serveCmd.Arg("auth-file", "Authentication file.").Required().File()
+
+	hashCmd = app.Command("hash", "Generate a hash and a random salt.")
 )
 
 type Config struct {
 	Aws struct {
-		Region string `yaml:"region"`
-		Bucket string `yaml:"bucket"`
+		Region string
+		Bucket string
 	}
 	Users map[string]struct {
-		Password string `yaml:"password"`
+		Password string
+		Hash     struct {
+			Salt   string
+			Sha256 string
+		}
 	}
 }
 
@@ -43,6 +53,8 @@ func main() {
 	switch flagCommand {
 	case "generate":
 		generate()
+	case "hash":
+		generateHash()
 	case "serve":
 		var buf bytes.Buffer
 		if _, err := io.Copy(&buf, *configFile); err != nil {
@@ -59,6 +71,42 @@ func main() {
 	}
 }
 
+const SALTLEN = 6
+
+func generateHash() {
+	var err error
+
+	var text string
+	reader := bufio.NewReader(os.Stdin)
+	fmt.Print("Enter password: ")
+	if text, err = reader.ReadString('\n'); err != nil {
+		fmt.Println("Could not read the password:", err)
+		os.Exit(1)
+	}
+
+	text = strings.TrimRightFunc(text, func(r rune) bool { return r == '\n' })
+
+	data := make([]byte, 6)
+	if _, err = rand.Read(data); err != nil {
+		fmt.Println("Could not generate full salt:", err)
+		os.Exit(1)
+	}
+
+	salt := hex.EncodeToString(data)
+
+	fmt.Println("salt:", salt)
+	fmt.Println("sha256:", calculateSha256(salt, text))
+}
+
+func calculateSha256(salt, data string) string {
+	sum := sha256.Sum256([]byte(salt + data))
+
+	a := make([]byte, 32)
+	copy(a[:], sum[:])
+
+	return hex.EncodeToString(a)
+}
+
 func generate() {
 	fmt.Println(strings.Join([]string{
 		"aws:",
@@ -71,12 +119,23 @@ func generate() {
 		"    # If you want to obfuscate a password, you can put it in here base64-encoded.",
 		"    password: !!binary |",
 		"      aGVqCg==",
+		"  arnold:",
+		"    hash:",
+		"      salt: abcdefg",
+		"      sha256: 2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824",
 	}, "\n"))
 }
 
 func checkCredentials(c Config, inputUsername, inputPassword string) bool {
 	for username, userdata := range c.Users {
-		if username == inputUsername && inputPassword == userdata.Password {
+		if username != inputUsername {
+			continue
+		}
+
+		if userdata.Password != "" && inputPassword == userdata.Password {
+			return true
+		}
+		if userdata.Hash.Sha256 != "" && calculateSha256(userdata.Hash.Salt, inputPassword) == userdata.Hash.Sha256 {
 			return true
 		}
 	}
