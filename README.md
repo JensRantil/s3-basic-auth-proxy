@@ -1,7 +1,7 @@
 S3 Basic Auth HTTP Proxy
 ========================
 
-This small application proxies Basic Auth HTTP requests to an S3 bucket.
+A minimalistic reverse HTTP proxy that can be used to add Basic Auth to an S3 bucket.
 
 Currently, only `GET`s of files are supported.
 
