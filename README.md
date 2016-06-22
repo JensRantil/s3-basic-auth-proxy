@@ -31,9 +31,9 @@ where `my-auth-file.txt` contains
         password: !!binary |
           aGVqCg==
       arnold:
-	hash:
-	  salt: ksdfkdsj
-	  sha256: fd853dc703b2b67b0bcaffdf357685fb6480837c3e6e537526e71b858d6a38f8
+        hash:
+          salt: ksdfkdsj
+          sha256: fd853dc703b2b67b0bcaffdf357685fb6480837c3e6e537526e71b858d6a38f8
 
 You can generate a sample documentation using `./s3-basic-auth-proxy serve generate`.
 
