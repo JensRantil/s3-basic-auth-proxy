@@ -24,15 +24,13 @@ where `my-auth-file.txt` contains
       region: eu-west-1
       bucket: my-bucket
     users:
-      erik:
-        password: "my%secret%password"
-      peter:
-        # If you want to obfuscate a password, you can put it in here base64-encoded.
-        password: !!binary |
-          aGVqCg==
       arnold:
         hash:
           salt: ksdfkdsj
+          sha256: fd853dc703b2b67b0bcaffdf357685fb6480837c3e6e537526e71b858d6a38f8
+      peter:
+        hash:
+          salt: ffkfkdsj
           sha256: fd853dc703b2b67b0bcaffdf357685fb6480837c3e6e537526e71b858d6a38f8
 
 You can generate a sample documentation using `./s3-basic-auth-proxy serve generate`.

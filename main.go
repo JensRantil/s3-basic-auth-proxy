@@ -39,8 +39,7 @@ type Config struct {
 		Bucket string
 	}
 	Users map[string]struct {
-		Password string
-		Hash     struct {
+		Hash struct {
 			Salt   string
 			Sha256 string
 		}
@@ -132,10 +131,7 @@ func checkCredentials(c Config, inputUsername, inputPassword string) bool {
 			continue
 		}
 
-		if userdata.Password != "" && inputPassword == userdata.Password {
-			return true
-		}
-		if userdata.Hash.Sha256 != "" && calculateSha256(userdata.Hash.Salt, inputPassword) == userdata.Hash.Sha256 {
+		if calculateSha256(userdata.Hash.Salt, inputPassword) == userdata.Hash.Sha256 {
 			return true
 		}
 	}
