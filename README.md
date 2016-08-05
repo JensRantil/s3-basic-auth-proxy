@@ -34,7 +34,35 @@ where `my-auth-file.txt` contains
           sha256: fd853dc703b2b67b0bcaffdf357685fb6480837c3e6e537526e71b858d6a38f8
 
 You can generate a sample documentation using `./s3-basic-auth-proxy generate`.
-You can also generate hash using `./s3-basic-auth-proxy hash`.
+You can also generate hash using `./s3-basic-auth-proxy hash`. Command line
+usage and help:
+
+```bash
+$ ./s3-basic-auth-proxy --help-long                                                                                          [15:18:14]
+usage: s3-basic-auth-proxy [<flags>] <command> [<args> ...]
+
+S3 Basic Auth proxy.
+
+Flags:
+  --help  Show context-sensitive help (also try --help-long and --help-man).
+
+Commands:
+  help [<command>...]
+    Show help.
+
+
+  generate
+    Generate an example configuration.
+
+
+  serve [<flags>] <auth-file>
+    Run the proxy server.
+
+    --addr=":80"  HTTP Server listen address.
+
+  hash
+    Generate a hash and a random salt.
+```
 
 Alternatives
 ------------
