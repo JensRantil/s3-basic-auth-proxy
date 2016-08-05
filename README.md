@@ -33,7 +33,7 @@ where `my-auth-file.txt` contains
           salt: ffkfkdsj
           sha256: fd853dc703b2b67b0bcaffdf357685fb6480837c3e6e537526e71b858d6a38f8
 
-You can generate a sample documentation using `./s3-basic-auth-proxy serve generate`.
+You can generate a sample documentation using `./s3-basic-auth-proxy generate`.
 
 Alternatives
 ------------
