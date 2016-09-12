@@ -16,6 +16,7 @@ import (
 	yaml "gopkg.in/yaml.v2"
 
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
 	"gopkg.in/alecthomas/kingpin.v2"
@@ -186,15 +187,18 @@ func serve(c Config) {
 		var response *s3.GetObjectOutput
 		if response, err = service.GetObject(&request); err != nil {
 			status := http.StatusBadGateway
+			if awsErr, ok := err.(awserr.RequestFailure); ok {
+				status = awsErr.StatusCode()
+			}
 			logRequest(r, status, err.Error())
 			http.Error(w, "Error talking to S3.", status)
 
 			return
 		}
+		defer response.Body.Close()
 
 		// Return the response.
 
-		defer response.Body.Close()
 		if _, err = io.Copy(w, response.Body); err != nil {
 			status := http.StatusBadGateway
 			logRequest(r, status, err.Error())
