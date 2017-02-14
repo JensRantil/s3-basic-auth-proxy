@@ -180,7 +180,7 @@ func serve(c Config) {
 			Key:    &r.URL.Path,
 		}
 
-		// TODO: Set cache header on request.
+		// TODO: Set cache headers on request.
 
 		// Execute the S3 request.
 
@@ -198,6 +198,8 @@ func serve(c Config) {
 		defer response.Body.Close()
 
 		// Return the response.
+
+		// TODO: Write all headers from response to w.
 
 		if _, err = io.Copy(w, response.Body); err != nil {
 			status := http.StatusBadGateway
