@@ -201,7 +201,7 @@ func serve(c Config) {
 
 		// TODO: Write all headers from response to w.
 
-		if _, err = io.Copy(w, response.Body); err != nil {
+		if _, err = io.Copy(bufio.NewWriter(w), bufio.NewReader(response.Body)); err != nil {
 			status := http.StatusBadGateway
 			logRequest(r, status, err.Error())
 			http.Error(w, "Error fetching from S3.", status)
