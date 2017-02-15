@@ -35,7 +35,8 @@ var (
 )
 
 type Config struct {
-	Aws struct {
+	BufferSize int
+	Aws        struct {
 		Region string
 		Bucket string
 	}
@@ -46,6 +47,8 @@ type Config struct {
 		}
 	}
 }
+
+const DefaultBufferSize = 1024 * 1024 // 1 MB
 
 func main() {
 	flagCommand := kingpin.MustParse(app.Parse(os.Args[1:]))
@@ -62,7 +65,7 @@ func main() {
 			os.Exit(1)
 		}
 
-		c := Config{}
+		c := Config{BufferSize: DefaultBufferSize}
 		if err := yaml.Unmarshal(buf.Bytes(), &c); err != nil {
 			fmt.Println("Could not parse configuration file:", err)
 			os.Exit(1)
@@ -201,7 +204,7 @@ func serve(c Config) {
 
 		// TODO: Write all headers from response to w.
 
-		if _, err = io.Copy(bufio.NewWriter(w), bufio.NewReader(response.Body)); err != nil {
+		if _, err = io.Copy(bufio.NewWriterSize(w, c.BufferSize), bufio.NewReaderSize(response.Body, c.BufferSize)); err != nil {
 			status := http.StatusBadGateway
 			logRequest(r, status, err.Error())
 			http.Error(w, "Error fetching from S3.", status)
